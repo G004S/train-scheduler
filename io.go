@@ -1,14 +1,14 @@
 package main
 
 import (
-	"errors"
+	"fmt"
 	"os"
 )
 
 func GetMapContent(path string) (string, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
-		return "", errors.New("Error: couldn't open file")
+		return "", fmt.Errorf("couldn't open file: %w", err)
 	}
 
 	return string(data), nil

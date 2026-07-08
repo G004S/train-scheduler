@@ -9,9 +9,6 @@ type Station struct {
 	Neighbours []*Station
 }
 
-// Initialize map for easy access to stations by name
-var stationMap map[string]*Station
-
 // Train struct
 type Train struct {
 	ID int
