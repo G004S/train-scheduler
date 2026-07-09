@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Get stations and their connections
+// ParseMap reads map content and creates stations with their connections.
 func ParseMap(mapContent string) (map[string]*Station, error) {
 
 	// Initialize map for easy access to stations by name
