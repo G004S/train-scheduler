@@ -58,7 +58,7 @@ func ParseStations(line string, stationMap map[string]*Station) error {
 	partsStations := strings.Split(line, ",")
 
 	if len(partsStations) != 3 {
-		return fmt.Errorf("Invalid station line")
+		return fmt.Errorf("Invalid station format")
 
 	}
 
@@ -68,7 +68,8 @@ func ParseStations(line string, stationMap map[string]*Station) error {
 
 	}
 
-	if _, exists := stationMap[name]; exists {
+	_, exists := stationMap[name]
+	if exists {
 		return fmt.Errorf("Dublicate station")
 
 	}

@@ -1,6 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"os"
+)
 
 func main() {
 
@@ -25,13 +28,22 @@ func main() {
 	}
 
 	//just to check
-	for name, station := range stations {
-		fmt.Printf("Stations: %s (%d, %d)\n", name, station.X, station.Y)
-		fmt.Print("Neighbours: ")
-		for _, neighbour := range station.Neighbours {
-			fmt.Printf("%s ", neighbour.Name)
-		}
-		fmt.Println()
+	sname := string(os.Args[2])
+	ename := string(os.Args[3])
+
+	fastpath, _ := BFS(stations, sname, ename)
+
+	for _, v := range fastpath {
+		fmt.Println(v.Name)
 	}
+
+	// for name, station := range  stations{
+	// 	fmt.Printf("Stations: %s (%d, %d)\n", name, station.X, station.Y)
+	// 	fmt.Print("Neighbours: ")
+	// 	for _, neighbour := range station.Neighbours {
+	// 		fmt.Printf("%s ", neighbour.Name)
+	// 	}
+	// 	fmt.Println()
+	// }
 
 }
