@@ -2,64 +2,87 @@ package main
 
 import (
 	"errors"
+	"flag"
 	"os"
-	"strconv"
 )
 
-// Run all the validators and return valid MAP or ERROR
-func ValidateSetup() (string, error) {
-	err := ValidateArgs()
-	if err != nil {
-		return "", err
-	}
-
-	mapPath, err := ValidateMapPath()
-	if err != nil {
-		return "", err
-	}
-
-	return mapPath, nil
+type Setup struct {
+	MapPath string
+	Start   string
+	End     string
+	Trains  int
 }
 
-// Validate the number of args
-func ValidateArgs() error {
-	if len(os.Args) != 5 {
-		return errors.New("Error: Invalid amount of arguments")
+// PrepareSetup reads command-line flags, validates them,
+// and finds the correct map file path.
+
+func PrepareSetup() (Setup, error) {
+
+	mapPath := flag.String("map", "", "path to map file")
+	start := flag.String("start", "", "start station")
+	end := flag.String("end", "", "end station")
+	trains := flag.Int("trains", 0, "number of trains")
+
+	flag.Parse()
+
+	setup := Setup{
+		MapPath: *mapPath,
+		Start:   *start,
+		End:     *end,
+		Trains:  *trains,
 	}
 
-	if os.Args[2] == os.Args[3] {
+	err := ValidateFlags(setup)
+	if err != nil {
+		return Setup{}, err
+	}
+
+	validMapPath, err := FindMapPath(setup.MapPath)
+	if err != nil {
+		return Setup{}, err
+	}
+
+	setup.MapPath = validMapPath
+	return setup, nil
+}
+
+func ValidateFlags(setup Setup) error {
+
+	if setup.MapPath == "" {
+		return errors.New("Error: missing map flag")
+	}
+
+	if setup.Start == "" {
+		return errors.New("Error: missing start flag")
+	}
+
+	if setup.End == "" {
+		return errors.New("Error: missing end flag")
+	}
+
+	if setup.Start == setup.End {
 		return errors.New("Error: Start and end station are the same")
 	}
 
-	trainNum, err := strconv.Atoi(os.Args[4])
-	if err != nil {
-		return errors.New("Error: Invalid train number format")
-	}
-	if trainNum <= 0 {
+	if setup.Trains <= 0 {
 		return errors.New("Error: Invalid amount of trains")
 	}
+
 	return nil
 }
 
-// func ValidateMapContent(path string) (string, error) {
-// 	data, err := os.ReadFile(path)
-// 	if err != nil {
-// 		return "", errors.New("Error: couldn't open file")
-// 	}
-// 	//check for duplicated stations
+// FindMapPath checks if the map file exists.
+// If not, it also tries the same path with ".map" added.
 
-// 	return string(data), nil
-// }
+func FindMapPath(mapPath string) (string, error) {
+	inputPath, _ := os.Stat(mapPath)
 
-// Validate existance of map file
-func ValidateMapPath() (string, error) {
-	inputPath, _ := os.Stat(os.Args[1])
 	if inputPath == nil {
-		inputPath, _ = os.Stat(os.Args[1] + ".map")
+		inputPath, _ = os.Stat(mapPath + ".map")
 		if inputPath == nil {
 			return "", errors.New("Error: file containing network map not found")
 		}
-		return os.Args[1] + ".map", nil
+		return mapPath + ".map", nil
 	}
-	return os.Args[1], nil
+	return mapPath, nil
 }

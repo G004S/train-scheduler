@@ -8,14 +8,14 @@ import (
 func main() {
 
 	//Validates setup: args, path to .map
-	mapPath, err := ValidateSetup()
+	setup, err := PrepareSetup()
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
 	//Get content from .map
-	mapContent, err := GetMapContent(mapPath)
+	mapContent, err := GetMapContent(setup.MapPath)
 	if err != nil {
 		fmt.Println(err)
 		return
