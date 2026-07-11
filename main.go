@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"os"
 )
 
 func main() {
@@ -28,8 +27,8 @@ func main() {
 	}
 
 	//just to check
-	sname := string(os.Args[2])
-	ename := string(os.Args[3])
+	sname := setup.Start
+	ename := setup.End
 
 	fastpath, _ := BFS(stations, sname, ename)
 
