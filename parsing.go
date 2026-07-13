@@ -20,7 +20,7 @@ func ParseMap(mapContent string) (map[string]*Station, error) {
 
 		line = strings.TrimSpace(line)
 
-		if line == "" {
+		if line == "" || strings.HasPrefix(line, "#") {
 			continue
 		}
 

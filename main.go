@@ -30,11 +30,15 @@ func main() {
 	sname := setup.Start
 	ename := setup.End
 
-	fastpath, _ := BFS(stations, sname, ename)
+	path, _ := BFS(stations, sname, ename)
+	fmt.Println("Path:")
 
-	for _, v := range fastpath {
+	for _, v := range path {
 		fmt.Println(v.Name)
 	}
+
+	fmt.Println()
+	MoveTrains(path, setup.Trains)
 
 	// for name, station := range  stations{
 	// 	fmt.Printf("Stations: %s (%d, %d)\n", name, station.X, station.Y)
