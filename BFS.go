@@ -58,6 +58,16 @@ func restorePath(parent map[string]*Station, startStation, endStation *Station) 
 
 	for cur := endStation; cur != nil; cur = parent[cur.Name] {
 		path = append(path, cur)
+
+		if cur == startStation {
+			break
+		}
 	}
+
+	//reverse the order
+	for first, last := 0, len(path)-1; first < last; first, last = first+1, last-1 {
+		path[first], path[last] = path[last], path[first]
+	}
+
 	return path
 }
