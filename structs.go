@@ -11,5 +11,6 @@ type Station struct {
 
 // Train struct
 type Train struct {
-	ID int
+	ID       int
+	Position int
 }

@@ -11,26 +11,42 @@ func ParseMap(mapContent string) (map[string]*Station, error) {
 
 	// Initialize map for easy access to stations by name
 	stationMap := make(map[string]*Station)
+	connectionMap := make(map[string]bool)
 
 	lines := strings.Split(mapContent, "\n")
 
 	section := ""
 
+	hasStationsSection := false
+	hasConnectionSection := false
+
+	countStations := 0
+	countConnections := 0
+
 	for _, line := range lines {
 
 		line = strings.TrimSpace(line)
 
-		if line == "" {
+		if line == "" || strings.HasPrefix(line, "#") {
 			continue
 		}
 
 		if line == strings.TrimSpace("stations:") {
 			section = "stations"
+			hasStationsSection = true
 			continue
 		}
 
 		if line == strings.TrimSpace("connections:") {
+			if !hasStationsSection {
+				return nil, fmt.Errorf("missing stations section")
+			}
+			if countStations == 0 {
+				return nil, fmt.Errorf("stations section is empty")
+			}
+
 			section = "connections"
+			hasConnectionSection = true
 			continue
 		}
 
@@ -39,18 +55,41 @@ func ParseMap(mapContent string) (map[string]*Station, error) {
 			if err != nil {
 				return nil, err
 			}
+
+			countStations++
+			if countStations > 10000 {
+				return nil, fmt.Errorf("too many stations")
+			}
 			continue
 		}
 
 		if section == "connections" {
-			err := ParseConnections(line, stationMap)
+			err := ParseConnections(line, stationMap, connectionMap)
 			if err != nil {
 				return nil, err
 			}
+			countConnections++
 			continue
 		}
-		return nil, fmt.Errorf("Line outside of the section: %s", line)
+		return nil, fmt.Errorf("line outside of the section: %s", line)
 	}
+
+	if !hasStationsSection {
+		return nil, fmt.Errorf("missing stations section")
+	}
+
+	if !hasConnectionSection {
+		return nil, fmt.Errorf("missing connections section")
+	}
+
+	if countStations == 0 {
+		return nil, fmt.Errorf("stations section is empty")
+	}
+
+	if countConnections == 0 {
+		return nil, fmt.Errorf("connections section is empty")
+	}
+
 	return stationMap, nil
 }
 
@@ -58,18 +97,27 @@ func ParseStations(line string, stationMap map[string]*Station) error {
 	partsStations := strings.Split(line, ",")
 
 	if len(partsStations) != 3 {
-		return fmt.Errorf("Invalid station line")
-
+		return fmt.Errorf("invalid station format")
 	}
 
 	name := strings.TrimSpace(partsStations[0])
 	if name == "" {
-		return fmt.Errorf("Empty station name")
-
+		return fmt.Errorf("empty station name")
 	}
 
-	if _, exists := stationMap[name]; exists {
-		return fmt.Errorf("Dublicate station")
+	if name != strings.ToLower(name) {
+		return fmt.Errorf("station name %q must be in lower case", name)
+	}
+
+	for _, char := range name {
+		if (char < 'a' || char > 'z') && char != '_' {
+			return fmt.Errorf("invalid station name %q", name)
+		}
+	}
+
+	_, exists := stationMap[name]
+	if exists {
+		return fmt.Errorf("dublicate station %q", name)
 
 	}
 
@@ -77,8 +125,17 @@ func ParseStations(line string, stationMap map[string]*Station) error {
 	y, err2 := strconv.Atoi(strings.TrimSpace(partsStations[2]))
 
 	if err1 != nil || err2 != nil {
-		return fmt.Errorf("Invalid coordinates")
+		return fmt.Errorf("invalid coordinates")
+	}
 
+	if x <= 0 || y <= 0 {
+		return fmt.Errorf("coordinates for station %q must be positive integers", name)
+	}
+
+	for _, station := range stationMap {
+		if station.X == x && station.Y == y {
+			return fmt.Errorf("stations %q and %q have the same coordinates", station.Name, name)
+		}
 	}
 
 	stationMap[name] = &Station{
@@ -89,33 +146,42 @@ func ParseStations(line string, stationMap map[string]*Station) error {
 	return nil
 }
 
-func ParseConnections(line string, stationMap map[string]*Station) error {
+func ParseConnections(line string, stationMap map[string]*Station, connectionMap map[string]bool) error {
 	partsConnect := strings.Split(line, "-")
 	if len(partsConnect) != 2 {
-		return fmt.Errorf("Invalid station line")
+		return fmt.Errorf("invalid connections format")
 
 	}
 
 	from := strings.TrimSpace(partsConnect[0])
 	to := strings.TrimSpace(partsConnect[1])
 
-	if from == "" || to == "" {
-		return fmt.Errorf("Empty connection station")
+	if from != strings.ToLower(from) || to != strings.ToLower(to) {
+		return fmt.Errorf("station names in connection section must be in lower case")
+	}
 
+	if from == "" || to == "" {
+		return fmt.Errorf("empty connection station")
 	}
 
 	if from == to {
-		return fmt.Errorf("Cannot connect to itself")
-
+		return fmt.Errorf("cannot connect to itself")
 	}
 
 	fromStation, ok1 := stationMap[from]
 	toStation, ok2 := stationMap[to]
 
 	if !ok1 || !ok2 {
-		return fmt.Errorf("Unknown station in connection")
-
+		return fmt.Errorf("unknown station in connection")
 	}
+
+	connectionKey := from + "-" + to
+	reverseKey := to + "-" + from
+
+	if connectionMap[connectionKey] || connectionMap[reverseKey] {
+		return fmt.Errorf("dublicate connection between %q and %q", from, to)
+	}
+	connectionMap[connectionKey] = true
 
 	fromStation.Neighbours = append(fromStation.Neighbours, toStation)
 	toStation.Neighbours = append(toStation.Neighbours, fromStation)
