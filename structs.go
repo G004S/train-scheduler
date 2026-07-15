@@ -13,4 +13,5 @@ type Station struct {
 type Train struct {
 	ID       int
 	Position int
+	Route    []*Station
 }

@@ -1,8 +1,10 @@
 package main
 
-import "errors"
+import (
+	"errors"
+)
 
-func BFS(stationMap map[string]*Station, start, end string) ([]*Station, error) {
+func BFS(stationMap map[string]*Station, usedStations map[string]bool, start, end string) ([]*Station, error) {
 
 	startStation, exists := stationMap[start]
 	if !exists {
@@ -28,12 +30,12 @@ func BFS(stationMap map[string]*Station, start, end string) ([]*Station, error) 
 		curStation := ochered[0]
 		ochered = ochered[1:]
 
-		if curStation == endStation {
+		if curStation.Name == endStation.Name {
 			break
 		}
 
 		for _, neighbour := range curStation.Neighbours {
-			if visited[neighbour.Name] {
+			if visited[neighbour.Name] || usedStations[neighbour.Name] {
 				continue
 			}
 
@@ -70,4 +72,33 @@ func restorePath(parent map[string]*Station, startStation, endStation *Station) 
 	}
 
 	return path
+}
+
+func FindAllRoutes(stations map[string]*Station, start, end string) ([][]*Station, error) {
+
+	//fpr excluding routes that have already been found
+	usedStations := make(map[string]bool)
+
+	//result
+	var routes [][]*Station
+
+	for {
+		route, err := BFS(stations, usedStations, start, end)
+
+		if err != nil {
+			break
+		}
+
+		routes = append(routes, route)
+
+		for i := 1; i < len(route)-1; i++ {
+			usedStations[route[i].Name] = true
+		}
+	}
+
+	if len(routes) == 0 {
+		return nil, errors.New("Error: no routes found")
+	}
+
+	return routes, nil
 }
