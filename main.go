@@ -25,6 +25,9 @@ func main() {
 	stations, err := ParseMap(mapContent)
 	ExitError(err)
 
+	err = ValidateInput(setup, stations)
+	ExitError(err)
+
 	//just to check
 	sname := setup.Start
 	ename := setup.End
