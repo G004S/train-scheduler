@@ -9998,8 +9998,7 @@ station_9995,9996,1
 station_9996,9997,1
 station_9997,9998,1
 station_9998,9999,1
-station_9999,10000,1
-station_10000,10001,1
+
 
 connections:
 station_0-station_1

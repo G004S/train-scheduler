@@ -32,7 +32,11 @@ func main() {
 	sname := setup.Start
 	ename := setup.End
 
-	path, _ := BFS(stations, sname, ename)
+	path, err := BFS(stations, sname, ename)
+	if err != nil {
+		ExitError(err)
+	}
+
 	fmt.Println("Path:")
 
 	for _, v := range path {

@@ -44,7 +44,7 @@ func BFS(stationMap map[string]*Station, start, end string) ([]*Station, error) 
 	}
 
 	if !visited[endStation.Name] {
-		return nil, errors.New("Error: Path not found")
+		return nil, errors.New("path not found")
 	}
 
 	path := restorePath(parent, startStation, endStation)
