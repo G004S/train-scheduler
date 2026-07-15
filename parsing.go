@@ -49,7 +49,7 @@ func ParseMap(mapContent string) (map[string]*Station, error) {
 			}
 			continue
 		}
-		return nil, fmt.Errorf("Line outside of the section: %s", line)
+		return nil, fmt.Errorf("line outside of the section: %s", line)
 	}
 	return stationMap, nil
 }
@@ -58,19 +58,19 @@ func ParseStations(line string, stationMap map[string]*Station) error {
 	partsStations := strings.Split(line, ",")
 
 	if len(partsStations) != 3 {
-		return fmt.Errorf("Invalid station format")
+		return fmt.Errorf("invalid station format")
 
 	}
 
 	name := strings.TrimSpace(partsStations[0])
 	if name == "" {
-		return fmt.Errorf("Empty station name")
+		return fmt.Errorf("empty station name")
 
 	}
 
 	_, exists := stationMap[name]
 	if exists {
-		return fmt.Errorf("Dublicate station")
+		return fmt.Errorf("dublicate station")
 
 	}
 
@@ -78,7 +78,7 @@ func ParseStations(line string, stationMap map[string]*Station) error {
 	y, err2 := strconv.Atoi(strings.TrimSpace(partsStations[2]))
 
 	if err1 != nil || err2 != nil {
-		return fmt.Errorf("Invalid coordinates")
+		return fmt.Errorf("invalid coordinates")
 
 	}
 
@@ -93,7 +93,7 @@ func ParseStations(line string, stationMap map[string]*Station) error {
 func ParseConnections(line string, stationMap map[string]*Station) error {
 	partsConnect := strings.Split(line, "-")
 	if len(partsConnect) != 2 {
-		return fmt.Errorf("Invalid station line")
+		return fmt.Errorf("invalid station line")
 
 	}
 
@@ -101,12 +101,12 @@ func ParseConnections(line string, stationMap map[string]*Station) error {
 	to := strings.TrimSpace(partsConnect[1])
 
 	if from == "" || to == "" {
-		return fmt.Errorf("Empty connection station")
+		return fmt.Errorf("empty connection station")
 
 	}
 
 	if from == to {
-		return fmt.Errorf("Cannot connect to itself")
+		return fmt.Errorf("cannot connect to itself")
 
 	}
 
@@ -114,7 +114,7 @@ func ParseConnections(line string, stationMap map[string]*Station) error {
 	toStation, ok2 := stationMap[to]
 
 	if !ok1 || !ok2 {
-		return fmt.Errorf("Unknown station in connection")
+		return fmt.Errorf("unknown station in connection")
 
 	}
 

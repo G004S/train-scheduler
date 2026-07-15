@@ -2,29 +2,28 @@ package main
 
 import (
 	"fmt"
+	"os"
 )
+
+func ExitError(err error) {
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "Error:", err)
+		os.Exit(1)
+	}
+}
 
 func main() {
 
 	//Validates setup: args, path to .map
 	setup, err := PrepareSetup()
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
+	ExitError(err)
 
 	//Get content from .map
 	mapContent, err := GetMapContent(setup.MapPath)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
+	ExitError(err)
 
 	stations, err := ParseMap(mapContent)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
+	ExitError(err)
 
 	//just to check
 	sname := setup.Start

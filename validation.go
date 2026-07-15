@@ -2,8 +2,9 @@ package main
 
 import (
 	"errors"
-	"flag"
+	"fmt"
 	"os"
+	"strconv"
 )
 
 type Setup struct {
@@ -18,22 +19,23 @@ type Setup struct {
 
 func PrepareSetup() (Setup, error) {
 
-	mapPath := flag.String("map", "", "path to map file")
-	start := flag.String("start", "", "start station")
-	end := flag.String("end", "", "end station")
-	trains := flag.Int("trains", 0, "number of trains")
-
-	flag.Parse()
-
-	setup := Setup{
-		MapPath: *mapPath,
-		Start:   *start,
-		End:     *end,
-		Trains:  *trains,
+	if len(os.Args) != 5 {
+		return Setup{}, fmt.Errorf("invalid number of arguments")
 	}
 
-	err := ValidateFlags(setup)
+	trains, err := strconv.Atoi(os.Args[4])
 	if err != nil {
+		return Setup{}, fmt.Errorf("invalid train number %q", os.Args[4])
+	}
+
+	setup := Setup{
+		MapPath: os.Args[1],
+		Start:   os.Args[2],
+		End:     os.Args[3],
+		Trains:  trains,
+	}
+
+	if err := ValidateFlags(setup); err != nil {
 		return Setup{}, err
 	}
 
@@ -49,23 +51,23 @@ func PrepareSetup() (Setup, error) {
 func ValidateFlags(setup Setup) error {
 
 	if setup.MapPath == "" {
-		return errors.New("Error: missing map flag")
+		return fmt.Errorf("missing map")
 	}
 
 	if setup.Start == "" {
-		return errors.New("Error: missing start flag")
+		return fmt.Errorf("missing start station")
 	}
 
 	if setup.End == "" {
-		return errors.New("Error: missing end flag")
+		return fmt.Errorf("missing end station")
 	}
 
 	if setup.Start == setup.End {
-		return errors.New("Error: Start and end station are the same")
+		return fmt.Errorf("start and end station are the same")
 	}
 
 	if setup.Trains <= 0 {
-		return errors.New("Error: Invalid amount of trains")
+		return fmt.Errorf("trains number should be more than 0")
 	}
 
 	return nil
