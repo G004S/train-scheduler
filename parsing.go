@@ -110,7 +110,7 @@ func ParseStations(line string, stationMap map[string]*Station) error {
 	}
 
 	for _, char := range name {
-		if (char < 'a' || char > 'z') && char != '_' {
+		if (char < 'a' || char > 'z') && char != '_' && (char < '0' || char > '9') {
 			return fmt.Errorf("invalid station name %q", name)
 		}
 	}
