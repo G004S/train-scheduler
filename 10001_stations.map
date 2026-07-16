@@ -9997,7 +9997,10 @@ station_9994,9995,1
 station_9995,9996,1
 station_9996,9997,1
 station_9997,9998,1
-station_9998,9999,1
+station_9998,9999,2
+station_9999,9999,1
+station_10000,9998,2
+station_10001,9999,3
 
 
 connections:
