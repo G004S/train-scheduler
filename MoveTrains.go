@@ -6,53 +6,48 @@ import (
 )
 
 func MoveTrains(routes [][]*Station, trainCount int) {
-	trains := make([]Train, trainCount)
 
-	//Enumerate trains
-	for i := range trains {
-		trains[i] = Train{
-			ID:       i + 1,
-			Position: 0,
-			Route:    routes[i%len(routes)],
-		}
-	}
+	trains := GiveRoutes(routes, trainCount)
 
-	//Map for tracking stations' vacancy
 	occupied := make(map[string]bool)
 
-	//Big loop - turn
 	for {
+
 		moved := false
 		moves := []string{}
 
 		for i := range trains {
+
 			train := &trains[i]
+
 			if train.Position >= len(train.Route)-1 {
 				continue
 			}
 
-			nextPosition := train.Position + 1
-			nextStation := train.Route[nextPosition]
+			next := train.Position + 1
+			nextStation := train.Route[next]
 
-			isEnd := nextPosition == len(train.Route)-1
+			isEnd := next == len(train.Route)-1
 
 			if occupied[nextStation.Name] && !isEnd {
 				continue
 			}
 
-			curStation := train.Route[train.Position]
-
 			if train.Position != 0 {
-				occupied[curStation.Name] = false
+				current := train.Route[train.Position]
+				occupied[current.Name] = false
 			}
 
-			train.Position = nextPosition
+			train.Position = next
 
 			if !isEnd {
 				occupied[nextStation.Name] = true
 			}
 
-			moves = append(moves, fmt.Sprintf("PosT%d-%s", train.ID, nextStation.Name))
+			moves = append(
+				moves,
+				fmt.Sprintf("T%d-%s", train.ID, nextStation.Name),
+			)
 
 			moved = true
 		}

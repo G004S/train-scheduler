@@ -29,7 +29,7 @@ func main() {
 	sname := setup.Start
 	ename := setup.End
 
-	routes, err := FindAllRoutes(stations, sname, ename)
+	routes := FindRoutes(stations, sname, ename)
 
 	MoveTrains(routes, setup.Trains)
 	// MoveTrains(routes, setup.Trains)
