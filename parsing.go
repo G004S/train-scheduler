@@ -9,11 +9,17 @@ import (
 // ParseMap reads map content and creates stations with their connections.
 func ParseMap(mapContent string) (map[string]*Station, error) {
 
+	if strings.TrimSpace(mapContent) == "" {
+		return nil, fmt.Errorf("map is empty")
+	}
+
 	// Initialize map for easy access to stations by name
 	stationMap := make(map[string]*Station)
 	connectionMap := make(map[string]bool)
 
 	lines := strings.Split(mapContent, "\n")
+	var stationsLines []string
+	var connectionsLines []string
 
 	section := ""
 
@@ -21,7 +27,6 @@ func ParseMap(mapContent string) (map[string]*Station, error) {
 	hasConnectionSection := false
 
 	countStations := 0
-	countConnections := 0
 
 	for _, line := range lines {
 
@@ -38,40 +43,23 @@ func ParseMap(mapContent string) (map[string]*Station, error) {
 		}
 
 		if line == strings.TrimSpace("connections:") {
-			if !hasStationsSection {
-				return nil, fmt.Errorf("missing stations section")
-			}
-			if countStations == 0 {
-				return nil, fmt.Errorf("stations section is empty")
-			}
-
+			// if !hasStationsSection {
+			// 	return nil, fmt.Errorf("missing stations section")
+			// }
 			section = "connections"
 			hasConnectionSection = true
 			continue
 		}
 
-		if section == "stations" {
-			err := ParseStations(line, stationMap)
-			if err != nil {
-				return nil, err
-			}
-
-			countStations++
-			if countStations > 10000 {
-				return nil, fmt.Errorf("too many stations")
-			}
-			continue
+		switch section {
+		case "stations":
+			stationsLines = append(stationsLines, line)
+		case "connections":
+			connectionsLines = append(connectionsLines, line)
+		default:
+			return nil, fmt.Errorf("line outside of the section: %s", line)
 		}
 
-		if section == "connections" {
-			err := ParseConnections(line, stationMap, connectionMap)
-			if err != nil {
-				return nil, err
-			}
-			countConnections++
-			continue
-		}
-		return nil, fmt.Errorf("line outside of the section: %s", line)
 	}
 
 	if !hasStationsSection {
@@ -82,12 +70,28 @@ func ParseMap(mapContent string) (map[string]*Station, error) {
 		return nil, fmt.Errorf("missing connections section")
 	}
 
-	if countStations == 0 {
+	if len(stationsLines) == 0 {
 		return nil, fmt.Errorf("stations section is empty")
 	}
 
-	if countConnections == 0 {
+	if len(connectionsLines) == 0 {
 		return nil, fmt.Errorf("connections section is empty")
+	}
+
+	for _, line := range stationsLines {
+		if err := ParseStations(line, stationMap); err != nil {
+			return nil, err
+		}
+		countStations++
+		if countStations > 10000 {
+			return nil, fmt.Errorf("stations amount should be less than 10K. provided: %d", countStations)
+		}
+	}
+
+	for _, line := range connectionsLines {
+		if err := ParseConnections(line, stationMap, connectionMap); err != nil {
+			return nil, err
+		}
 	}
 
 	return stationMap, nil
@@ -172,7 +176,7 @@ func ParseConnections(line string, stationMap map[string]*Station, connectionMap
 	toStation, ok2 := stationMap[to]
 
 	if !ok1 || !ok2 {
-		return fmt.Errorf("unknown station in connection")
+		return fmt.Errorf("unknown station in connection between %q and %q", from, to)
 	}
 
 	connectionKey := from + "-" + to
