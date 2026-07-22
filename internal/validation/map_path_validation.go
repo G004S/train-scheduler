@@ -1,7 +1,7 @@
 package validation
 
 import (
-	"errors"
+	"fmt"
 	"os"
 )
 
@@ -9,14 +9,53 @@ import (
 // If not, it also tries the same path with ".map" added.
 
 func FindMapPath(mapPath string) (string, error) {
-	inputPath, _ := os.Stat(mapPath)
+	fileInfo, err := os.Stat(mapPath)
 
-	if inputPath == nil {
-		inputPath, _ = os.Stat(mapPath + ".map")
-		if inputPath == nil {
-			return "", errors.New("file containing network map not found")
+	if err == nil {
+		if fileInfo.IsDir() {
+			return "", fmt.Errorf(
+				"path %q is a directory, expected a map file",
+				mapPath,
+			)
 		}
-		return mapPath + ".map", nil
+
+		return mapPath, nil
 	}
-	return mapPath, nil
+
+	if !os.IsNotExist(err) {
+		return "", fmt.Errorf(
+			"cannot access map file %q: %w",
+			mapPath,
+			err,
+		)
+	}
+
+	pathWithExtension := mapPath + ".map"
+
+	fileInfo, err = os.Stat(pathWithExtension)
+
+	if err == nil {
+		if fileInfo.IsDir() {
+			return "", fmt.Errorf(
+				"path %q is a directory, expected a map file",
+				pathWithExtension,
+			)
+		}
+
+		return pathWithExtension, nil
+	}
+
+	if !os.IsNotExist(err) {
+		return "", fmt.Errorf(
+			"cannot access map file %q: %w",
+			pathWithExtension,
+			err,
+		)
+	}
+
+	return "", fmt.Errorf(
+		"map file not found: tried %q and %q",
+		mapPath,
+		pathWithExtension,
+	)
 }

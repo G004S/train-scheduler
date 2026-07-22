@@ -13,12 +13,18 @@ import (
 func PrepareSetup() (models.Setup, error) {
 
 	if len(os.Args) != 5 {
-		return models.Setup{}, fmt.Errorf("invalid number of arguments")
+		return models.Setup{}, fmt.Errorf(
+			"invalid number of arguments: expected <map> <start> <end> <trains>, received %d arguments",
+			len(os.Args)-1,
+		)
 	}
 
 	trains, err := strconv.Atoi(os.Args[4])
 	if err != nil {
-		return models.Setup{}, fmt.Errorf("invalid train number %q", os.Args[4])
+		return models.Setup{}, fmt.Errorf(
+			"invalid number of trains: %q is not an integer",
+			os.Args[4],
+		)
 	}
 
 	setup := models.Setup{

@@ -21,18 +21,18 @@ func ParseConnections(line string, stationMap map[string]*models.Station, connec
 	}
 
 	if from == "" || to == "" {
-		return fmt.Errorf("empty connection station")
+		return fmt.Errorf("invalid connection format %q: expected station1-station2", line)
 	}
 
 	if from == to {
-		return fmt.Errorf("cannot connect to itself")
+		return fmt.Errorf("station %q cannot connect to itself", from)
 	}
 
 	fromStation, ok1 := stationMap[from]
 	toStation, ok2 := stationMap[to]
 
 	if !ok1 || !ok2 {
-		return fmt.Errorf("unknown station in connection between %q and %q", from, to)
+		return fmt.Errorf("unknown station in connection %q-%q", from, to)
 	}
 
 	connectionKey := from + "-" + to

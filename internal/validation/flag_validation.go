@@ -16,7 +16,10 @@ func ValidateFlags(setup models.Setup) error {
 	}
 
 	if setup.Trains <= 0 {
-		return fmt.Errorf("trains number should be more than 0")
+		return fmt.Errorf(
+			"invalid number of trains: %d is not a positive integer",
+			setup.Trains,
+		)
 	}
 
 	if setup.Trains >= 3000 {
