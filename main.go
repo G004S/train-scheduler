@@ -3,6 +3,10 @@ package main
 import (
 	"fmt"
 	"os"
+	"pathfinder/internal/io"
+	"pathfinder/internal/parsing"
+	scheduling "pathfinder/internal/scheduler"
+	"pathfinder/internal/validation"
 )
 
 func ExitError(err error) {
@@ -15,20 +19,20 @@ func ExitError(err error) {
 func main() {
 
 	//Validates setup: args, path to .map
-	setup, err := PrepareSetup()
+	setup, err := validation.PrepareSetup()
 	ExitError(err)
 
 	//Get content from .map
-	mapContent, err := GetMapContent(setup.MapPath)
+	mapContent, err := io.GetMapContent(setup.MapPath)
 	ExitError(err)
 
-	stations, err := ParseMap(mapContent)
+	stations, err := parsing.ParseMap(mapContent)
 	ExitError(err)
 
-	err = ValidateInput(setup, stations)
+	err = validation.ValidateInput(setup, stations)
 	ExitError(err)
 
-	setup.FindOptimalRouteGroup(stations)
+	scheduling.FindOptimalRouteGroup(stations, setup.Start, setup.End, setup.Trains)
 	//////!!!! SIMULATIONS
 
 	///////////////////////////////////////////////////////////////////////////////

@@ -1,4 +1,4 @@
-package main
+package models
 
 // Contains everything related to a specific route
 type Route struct {
@@ -21,4 +21,11 @@ type Train struct {
 	ID       int
 	Position int
 	Route    []*Station
+}
+
+type Setup struct {
+	MapPath string
+	Start   string
+	End     string
+	Trains  int
 }

@@ -1,10 +1,11 @@
-package main
+package simulation
 
 import (
 	"fmt"
+	"pathfinder/internal/models"
 )
 
-func MoveTrains(routes []*Route, trainCount int) [][]string {
+func MoveTrains(routes []*models.Route, trainCount int) [][]string {
 
 	var totalmoves [][]string
 
