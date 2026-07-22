@@ -1,48 +1,112 @@
 package main
 
-func DFS(current, end *Station, visited map[string]bool, path []*Station, allPaths *[][]*Station) {
-	//add current to the path
-	path = append(path, current)
+import (
+	"fmt"
+	"math"
+	"sort"
+	"strings"
+)
 
-	//end station found --> save the path
+func DFS(current, end *Station, visited map[string]bool, path *Route, allPaths *[]*Route) {
+	path.Stations = append(path.Stations, current)
+
 	if current == end {
+		copyPath := make([]*Station, len(path.Stations))
+		copy(copyPath, path.Stations)
 
-		copyPath := make([]*Station, len(path))
-		copy(copyPath, path)
+		*allPaths = append(*allPaths, &Route{
+			Stations: copyPath,
+		})
 
-		*allPaths = append(*allPaths, copyPath)
+		path.Stations = path.Stations[:len(path.Stations)-1]
 		return
 	}
 
-	//mark the sttion as visited to prevent infinite loops in current branch
 	visited[current.Name] = true
 
 	for _, neighbour := range current.Neighbours {
-
 		if visited[neighbour.Name] {
 			continue
 		}
-		//step forward to the next UNVISITED neighbour
+
 		DFS(neighbour, end, visited, path, allPaths)
 	}
 
-	//set the station as unvisited for next possible paths
 	visited[current.Name] = false
+
+	path.Stations = path.Stations[:len(path.Stations)-1]
 }
 
-func FindRoutes(stations map[string]*Station, start, end string) [][]*Station {
+func (S *Setup) FindAllRoutes(stations map[string]*Station) []*Route {
 
 	//for saving the routes
-	var Routes [][]*Station
+	var Routes []*Route
 
-	DFS(stations[start], stations[end], map[string]bool{}, []*Station{}, &Routes)
+	DFS(stations[S.Start], stations[S.End], map[string]bool{}, &Route{}, &Routes)
 
+	sort.Slice(Routes, func(i, j int) bool {
+		return len(Routes[i].Stations) < len(Routes[j].Stations)
+	})
 	return Routes
 }
 
-// give route to each train
-func GiveRoutes(routes [][]*Station, trainCount int) []Train {
+func FindUniqueRoutes(routes []*Route) [][]*Route {
 
+	//result
+	var RouteGroups [][]*Route
+
+	//sort out connected routes
+	for _, base := range routes {
+
+		group := []*Route{base}
+
+		occupied := make(map[string]bool)
+
+		// mark used nodes for BASE ROUTE
+		for i := 1; i < len(base.Stations)-1; i++ {
+			occupied[base.Stations[i].Name] = true
+		}
+
+		//Mark all the routes as NOT interconnected until proven wrong
+		for _, candidate := range routes {
+
+			if candidate == base {
+				continue
+			}
+
+			interconnected := false
+
+			//check if any stations are used in marked routes
+			for i := 1; i < len(candidate.Stations)-1; i++ {
+
+				if occupied[candidate.Stations[i].Name] {
+					interconnected = true
+					break
+				}
+			}
+
+			if interconnected {
+				continue
+			}
+
+			//if candidate wasn't wiped out by the IF above then it's not connected
+			group = append(group, candidate)
+
+			//mark candidate's stations as used
+			for i := 1; i < len(candidate.Stations)-1; i++ {
+				occupied[candidate.Stations[i].Name] = true
+			}
+		}
+
+		//Add group
+		RouteGroups = append(RouteGroups, group)
+	}
+
+	return RouteGroups
+}
+
+// give route to each train
+func GiveRoutes(routes []*Route, trainCount int) []Train {
 	//stores amount of trains per path
 	given := make([]int, len(routes))
 
@@ -56,9 +120,9 @@ func GiveRoutes(routes [][]*Station, trainCount int) []Train {
 		//calculates the lightest path
 		for j := 1; j < len(routes); j++ {
 
-			scoreBest := len(routes[bestID]) + given[bestID]
+			scoreBest := len(routes[bestID].Stations) + given[bestID]
 
-			scoreCurrent := len(routes[j]) + given[j]
+			scoreCurrent := len(routes[j].Stations) + given[j]
 
 			if scoreCurrent < scoreBest {
 				bestID = j
@@ -69,7 +133,7 @@ func GiveRoutes(routes [][]*Station, trainCount int) []Train {
 		trains[i] = Train{
 			ID:       i + 1,
 			Position: 0,
-			Route:    routes[bestID],
+			Route:    routes[bestID].Stations,
 		}
 
 		//add weight to the path
@@ -77,6 +141,30 @@ func GiveRoutes(routes [][]*Station, trainCount int) []Train {
 	}
 
 	return trains
+}
+
+func (S *Setup) FindOptimalRouteGroup(stations map[string]*Station) {
+	//get ALL the possible routes
+	allroutes := S.FindAllRoutes(stations)
+
+	//group routs into NON-connected groups
+	GroupsOfUniqueRoutes := FindUniqueRoutes(allroutes)
+
+	//find best through simulation
+	best := math.MaxInt
+	var bestMoves [][]string
+
+	for _, v := range GroupsOfUniqueRoutes {
+		moves := MoveTrains(v, S.Trains)
+		if len(moves) < best {
+			best = len(moves)
+			bestMoves = moves
+		}
+	}
+
+	for _, m := range bestMoves {
+		fmt.Println(strings.Join(m, " "))
+	}
 }
 
 // func BFS(stationMap map[string]*Station, usedStations map[string]bool, start, end string) ([]*Station, error) {

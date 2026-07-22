@@ -25,14 +25,13 @@ func main() {
 	stations, err := ParseMap(mapContent)
 	ExitError(err)
 
-	//just to check
-	sname := setup.Start
-	ename := setup.End
+	err = ValidateInput(setup, stations)
+	ExitError(err)
 
-	routes := FindRoutes(stations, sname, ename)
+	setup.FindOptimalRouteGroup(stations)
+	//////!!!! SIMULATIONS
 
-	MoveTrains(routes, setup.Trains)
-	// MoveTrains(routes, setup.Trains)
+	///////////////////////////////////////////////////////////////////////////////
 
 	// for name, station := range  stations{
 	// 	fmt.Printf("Stations: %s (%d, %d)\n", name, station.X, station.Y)

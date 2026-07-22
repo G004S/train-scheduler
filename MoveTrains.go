@@ -2,10 +2,11 @@ package main
 
 import (
 	"fmt"
-	"strings"
 )
 
-func MoveTrains(routes [][]*Station, trainCount int) {
+func MoveTrains(routes []*Route, trainCount int) [][]string {
+
+	var totalmoves [][]string
 
 	trains := GiveRoutes(routes, trainCount)
 
@@ -52,12 +53,14 @@ func MoveTrains(routes [][]*Station, trainCount int) {
 			moved = true
 		}
 
+		totalmoves = append(totalmoves, moves)
+
 		if !moved {
 			break
 		}
-
-		fmt.Println(strings.Join(moves, " "))
 	}
+
+	return totalmoves
 }
 
 // // moving trains by one step

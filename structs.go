@@ -1,5 +1,12 @@
 package main
 
+// Contains everything related to a specific route
+type Route struct {
+	ID                int
+	Stations          []*Station
+	ConflictingRoutes map[int]bool
+}
+
 // Contains everything related to a specific station
 type Station struct {
 	Name string

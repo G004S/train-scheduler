@@ -54,13 +54,13 @@ func ValidateFlags(setup Setup) error {
 		return fmt.Errorf("missing map")
 	}
 
-	if setup.Start == "" {
-		return fmt.Errorf("missing start station")
-	}
+	// if setup.Start == "" {
+	// 	return fmt.Errorf("missing start station")
+	// }
 
-	if setup.End == "" {
-		return fmt.Errorf("missing end station")
-	}
+	// if setup.End == "" {
+	// 	return fmt.Errorf("missing end station")
+	// }
 
 	if setup.Start == setup.End {
 		return fmt.Errorf("start and end station are the same")
@@ -82,9 +82,20 @@ func FindMapPath(mapPath string) (string, error) {
 	if inputPath == nil {
 		inputPath, _ = os.Stat(mapPath + ".map")
 		if inputPath == nil {
-			return "", errors.New("Error: file containing network map not found")
+			return "", errors.New("file containing network map not found")
 		}
 		return mapPath + ".map", nil
 	}
 	return mapPath, nil
+}
+
+func ValidateInput(setup Setup, stationMap map[string]*Station) error {
+	if _, exists := stationMap[setup.Start]; !exists {
+		return fmt.Errorf("start station %q does not exists", setup.Start)
+	}
+
+	if _, exists := stationMap[setup.End]; !exists {
+		return fmt.Errorf("end station %q does not exists", setup.End)
+	}
+	return nil
 }
