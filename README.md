@@ -313,3 +313,29 @@ Error: duplicate connection between "bank" and "victoria"
 ```
 
 ---
+
+## Testing
+
+Run all tests:
+```bash
+go test -v
+```
+
+The test suite covers:
+
+- valid routes for the London network, bond_square and beethoven maps;
+- invalid train counts (zero and negative);
+- invalid start and end stations;
+- identical start and end stations;
+- duplicate stations;
+- duplicate coordinates;
+- duplicate connections;
+- invalid coordinates;
+- missing stations: section;
+- missing connections: section;
+- empty map file;
+- connections to unknown stations;
+- self-connections;
+- non-existent map file.
+
+Additional test maps are located in the testmaps/ directory.
