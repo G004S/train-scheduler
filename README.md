@@ -21,6 +21,21 @@ The program reads a railway map from a `.map` file, validates the input, finds a
 
 ---
 
+## Project Structure
+```text
+july_pathfinder/
+├── internal/          # Project packages
+├── testmaps/          # Maps used for automated tests
+├── london.map         # Sample network
+├── paths.map          # Additional example map
+├── 10k.map            # Map with 10,000 stations
+├── 10001_stations.map # Invalid map (>10,000 stations)
+├── main.go
+├── pathfinder_test.go
+├── go.mod
+└── README.md
+```
+
 ## Usage
 
 ```bash
