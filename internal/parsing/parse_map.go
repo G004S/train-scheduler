@@ -76,7 +76,7 @@ func ParseMap(mapContent string) (map[string]*models.Station, error) {
 				Number: lineNumber,
 			})
 		default:
-			return nil, fmt.Errorf("line outside of the section: %s", lineNumber)
+			return nil, fmt.Errorf("line outside of the section: %d", lineNumber)
 		}
 
 	}

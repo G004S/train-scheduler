@@ -1,0 +1,7 @@
+stations:
+start,1,1
+middle,2,2
+end,3,3
+
+connections:
+start-middle

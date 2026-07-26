@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"os/exec"
 	"strings"
 	"testing"
@@ -16,6 +17,18 @@ type testCase struct {
 
 func TestProgram(t *testing.T) {
 	tests := []testCase{
+		{
+			name: "London 1 trains",
+			args: []string{
+				"london.map",
+				"waterloo",
+				"st_pancras",
+				"1",
+			},
+			wantError: false,
+			expected: `T1-victoria
+T1-st_pancras`,
+		},
 		{
 			name: "London 2 trains",
 			args: []string{
@@ -319,6 +332,46 @@ T6-part T7-part T8-verdi T9-mozart
 T8-part T9-part`,
 		},
 		{
+			name: "jungle_desert",
+			args: []string{
+				"testmaps/jungle_desert.map",
+				"jungle",
+				"desert",
+				"10",
+			},
+			wantError: false,
+			expected: `T1-farms T2-grasslands T3-green_belt
+T1-downtown T2-suburbs T3-village T4-farms T5-grasslands T6-green_belt
+T1-metropolis T2-clouds T3-mountain T4-downtown T5-suburbs T6-village T7-farms T8-grasslands T9-green_belt
+T1-industrial T2-wetlands T3-treetop T4-metropolis T5-clouds T6-mountain T7-downtown T8-suburbs T9-village T10-farms
+T1-desert T2-desert T3-desert T4-industrial T5-wetlands T6-treetop T7-metropolis T8-clouds T9-mountain T10-downtown
+T4-desert T5-desert T6-desert T7-industrial T8-wetlands T9-treetop T10-metropolis
+T7-desert T8-desert T9-desert T10-industrial
+T10-desert`,
+		},
+		{
+			name: "reverse duplicate connections",
+			args: []string{
+				"testmaps/jungle_desert2.map",
+				"jungle",
+				"desert",
+				"10",
+			},
+			wantError: true,
+			expected:  "Error: line 35: dublicate connection between \"mountain\" and \"farms\"",
+		},
+		{
+			name: "invalid station names",
+			args: []string{
+				"testmaps/jungle_desert3.map",
+				"jungle",
+				"desert",
+				"10",
+			},
+			wantError: true,
+			expected:  "Error: line 2: station name \"Jungle\" must be in lower case",
+		},
+		{
 			name: "more than 10k stations",
 			args: []string{
 				"10001_stations.map",
@@ -329,6 +382,17 @@ T8-part T9-part`,
 			wantError: true,
 			expected:  "Error: too many stations: maximum is 10000, provided 10001",
 		},
+		{
+			name: "no path",
+			args: []string{
+				"testmaps/no_path.map",
+				"start",
+				"end",
+				"1",
+			},
+			wantError: true,
+			expected:  "Error: no path exists between \"start\" and \"end\"",
+		},
 	}
 
 	for _, test := range tests {
@@ -338,25 +402,79 @@ T8-part T9-part`,
 
 			cmd := exec.Command("go", commandArgs...)
 
-			output, err := cmd.CombinedOutput()
-			result := string(output)
+			var stdout bytes.Buffer
+			var stderr bytes.Buffer
 
-			if test.wantError && err == nil {
-				t.Fatal("expected an error, but program succeeded")
+			cmd.Stdout = &stdout
+			cmd.Stderr = &stderr
+
+			err := cmd.Run()
+
+			stdoutResult := stdout.String()
+			stderrResult := stderr.String()
+
+			if test.wantError {
+				if err == nil {
+					t.Fatal("expected an error, but program succeeded")
+				}
+
+				if stderrResult == "" {
+					t.Fatal("expected error message in stderr, but stderr was empty")
+				}
+
+				if test.expected != "" &&
+					!strings.Contains(stderrResult, test.expected) {
+
+					t.Errorf(
+						"expected stderr to contain:\n%s\n\ngot stderr:\n%s",
+						test.expected,
+						stderrResult,
+					)
+				}
+
+				if stdoutResult != "" {
+					t.Errorf(
+						"expected stdout to be empty for error case, got:\n%s",
+						stdoutResult,
+					)
+				}
+
+				return
 			}
 
-			if !test.wantError && err != nil {
+			if err != nil {
 				t.Fatalf(
-					"program failed: %v\noutput:\n%s", err, output)
+					"program failed: %v\nstderr:\n%s",
+					err,
+					stderrResult,
+				)
 			}
 
-			if test.expected != "" && !strings.Contains(result, test.expected) {
+			if stderrResult != "" {
 				t.Errorf(
-					"expected output to contain:\n%s\n\ngot:\n%s", test.expected, output)
+					"expected stderr to be empty, got:\n%s",
+					stderrResult,
+				)
 			}
 
-			if test.lastTrain != "" && !strings.Contains(result, test.lastTrain) {
-				t.Errorf("expected output to contain:\n%s\n\ngot:\n%s", test.lastTrain, output)
+			if test.expected != "" &&
+				!strings.Contains(stdoutResult, test.expected) {
+
+				t.Errorf(
+					"expected stdout to contain:\n%s\n\ngot stdout:\n%s",
+					test.expected,
+					stdoutResult,
+				)
+			}
+
+			if test.lastTrain != "" &&
+				!strings.Contains(stdoutResult, test.lastTrain) {
+
+				t.Errorf(
+					"expected stdout to contain:\n%s\n\ngot stdout:\n%s",
+					test.lastTrain,
+					stdoutResult,
+				)
 			}
 		})
 	}
