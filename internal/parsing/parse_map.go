@@ -6,6 +6,11 @@ import (
 	"strings"
 )
 
+type NumberedLine struct {
+	Text   string
+	Number int
+}
+
 // ParseMap reads map content and creates stations with their connections.
 func ParseMap(mapContent string) (map[string]*models.Station, error) {
 
@@ -18,8 +23,8 @@ func ParseMap(mapContent string) (map[string]*models.Station, error) {
 	connectionMap := make(map[string]bool)
 
 	lines := strings.Split(mapContent, "\n")
-	var stationsLines []string
-	var connectionsLines []string
+	var stationsLines []NumberedLine
+	var connectionsLines []NumberedLine
 
 	section := ""
 
@@ -28,7 +33,9 @@ func ParseMap(mapContent string) (map[string]*models.Station, error) {
 
 	countStations := 0
 
-	for _, line := range lines {
+	for i, line := range lines {
+
+		lineNumber := i + 1
 
 		line = strings.TrimSpace(line)
 		line = strings.Split(line, "#")[0]
@@ -59,11 +66,17 @@ func ParseMap(mapContent string) (map[string]*models.Station, error) {
 
 		switch section {
 		case "stations":
-			stationsLines = append(stationsLines, line)
+			stationsLines = append(stationsLines, NumberedLine{
+				Text:   line,
+				Number: lineNumber,
+			})
 		case "connections":
-			connectionsLines = append(connectionsLines, line)
+			connectionsLines = append(connectionsLines, NumberedLine{
+				Text:   line,
+				Number: lineNumber,
+			})
 		default:
-			return nil, fmt.Errorf("line outside of the section: %s", line)
+			return nil, fmt.Errorf("line outside of the section: %s", lineNumber)
 		}
 
 	}
@@ -85,18 +98,19 @@ func ParseMap(mapContent string) (map[string]*models.Station, error) {
 	}
 
 	for _, line := range stationsLines {
-		if err := ParseStations(line, stationMap); err != nil {
-			return nil, err
+
+		if err := ParseStations(line.Text, stationMap); err != nil {
+			return nil, fmt.Errorf("line %d: %w", line.Number, err)
 		}
 		countStations++
 		if countStations > 10000 {
-			return nil, fmt.Errorf("too many stations: maximum is 10000, provided %d", countStations)
+			return nil, fmt.Errorf("too many stations: maximum is 10000, provided %d", line.Number, countStations)
 		}
 	}
 
 	for _, line := range connectionsLines {
-		if err := ParseConnections(line, stationMap, connectionMap); err != nil {
-			return nil, err
+		if err := ParseConnections(line.Text, stationMap, connectionMap); err != nil {
+			return nil, fmt.Errorf("line %d: %w", line.Number, err)
 		}
 	}
 

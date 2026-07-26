@@ -3,6 +3,7 @@ stations:
 waterloo  , 3 , 1
 victoria,6,7
 
+
 # north stations
 euston,11,23
 st_pancras,5,15 # international # internation
@@ -11,3 +12,13 @@ st_pancras,5,15 # international # internation
 connections:
 waterloo -victoria
 waterloo- euston
+st_pancras-euston
+victoria-st_pancras
+
+
+stations:
+start,1,1
+end,2,1
+
+connections:
+start-end
