@@ -31,6 +31,12 @@ func ParseMap(mapContent string) (map[string]*models.Station, error) {
 	for _, line := range lines {
 
 		line = strings.TrimSpace(line)
+		line = strings.Split(line, "#")[0]
+		line = strings.TrimSpace(line)
+
+		if line == "" {
+			continue
+		}
 
 		if line == "" || strings.HasPrefix(line, "#") {
 			continue
