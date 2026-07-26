@@ -104,7 +104,7 @@ func ParseMap(mapContent string) (map[string]*models.Station, error) {
 		}
 		countStations++
 		if countStations > 10000 {
-			return nil, fmt.Errorf("too many stations: maximum is 10000, provided %d", line.Number, countStations)
+			return nil, fmt.Errorf("too many stations: maximum is 10000, provided %d", countStations)
 		}
 	}
 

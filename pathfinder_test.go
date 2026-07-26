@@ -327,7 +327,7 @@ T8-part T9-part`,
 				"1",
 			},
 			wantError: true,
-			expected:  "too many stations: maximum is 10000, provided 10001",
+			expected:  "Error: too many stations: maximum is 10000, provided 10001",
 		},
 	}
 
