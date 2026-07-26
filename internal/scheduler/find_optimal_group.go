@@ -9,9 +9,12 @@ import (
 	"strings"
 )
 
-func FindOptimalRouteGroup(stations map[string]*models.Station, start, end string, trainCount int) {
+func FindOptimalRouteGroup(stations map[string]*models.Station, start, end string, trainCount int) error {
 	//get ALL the possible routes
-	allroutes := routing.FindAllRoutes(stations, start, end)
+	allroutes, err := routing.FindAllRoutes(stations, start, end)
+	if err != nil {
+		return err
+	}
 
 	//group routs into NON-connected groups
 	GroupsOfUniqueRoutes := routing.FindUniqueRoutes(allroutes)
@@ -31,4 +34,5 @@ func FindOptimalRouteGroup(stations map[string]*models.Station, start, end strin
 	for _, m := range bestMoves {
 		fmt.Println(strings.Join(m, " "))
 	}
+	return nil
 }

@@ -32,7 +32,8 @@ func main() {
 	err = validation.ValidateInput(setup, stations)
 	ExitError(err)
 
-	scheduling.FindOptimalRouteGroup(stations, setup.Start, setup.End, setup.Trains)
+	err = scheduling.FindOptimalRouteGroup(stations, setup.Start, setup.End, setup.Trains)
+	ExitError(err)
 	//////!!!! SIMULATIONS
 
 	///////////////////////////////////////////////////////////////////////////////
