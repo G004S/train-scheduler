@@ -18,6 +18,8 @@ func MoveTrains(routes []*models.Route, trainCount int) [][]string {
 		moved := false
 		moves := []string{}
 
+		usedTracks := make(map[string]bool)
+
 		for i := range trains {
 
 			train := &trains[i]
@@ -26,10 +28,19 @@ func MoveTrains(routes []*models.Route, trainCount int) [][]string {
 				continue
 			}
 
+			currentStation := train.Route[train.Position]
+
 			next := train.Position + 1
 			nextStation := train.Route[next]
 
 			isEnd := next == len(train.Route)-1
+
+			track := currentStation.Name + "-" + nextStation.Name
+
+			// The same track cannot be used twice during one turn.
+			if usedTracks[track] {
+				continue
+			}
 
 			if occupied[nextStation.Name] && !isEnd {
 				continue
@@ -45,6 +56,9 @@ func MoveTrains(routes []*models.Route, trainCount int) [][]string {
 			if !isEnd {
 				occupied[nextStation.Name] = true
 			}
+
+			// Mark this track as used during the current turn.
+			usedTracks[track] = true
 
 			moves = append(
 				moves,
