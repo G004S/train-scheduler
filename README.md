@@ -213,6 +213,16 @@ The parser checks for:
 
 ---
 
+### Train limit
+
+Our implementation accepts up to 3000 trains.
+
+This limit was introduced as a safeguard to avoid excessively large simulations and impractically large output. It is an implementation decision rather than a requirement of the original project specification.
+
+The value was chosen as a reasonable upper bound for the current implementation. Exactly **3000** trains are accepted, while values above **3000** are rejected.
+
+---
+
 ## Route validation
 
 The program also reports errors when
