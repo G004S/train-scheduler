@@ -22,7 +22,7 @@ func ValidateFlags(setup models.Setup) error {
 		)
 	}
 
-	if setup.Trains >= 3000 {
+	if setup.Trains > 3000 {
 		return fmt.Errorf("trains number should not be more than 3000")
 	}
 
