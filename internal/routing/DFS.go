@@ -4,7 +4,7 @@ import (
 	"pathfinder/internal/models"
 )
 
-const maxRoutes = 200
+const maxRoutes = 100
 
 const maxPathLength = 50
 
