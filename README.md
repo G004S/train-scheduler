@@ -209,6 +209,7 @@ The parser checks for:
 - self-connections
 - duplicate connections
 - more than 10,000 stations
+- more than 3000 trains
 
 ---
 
