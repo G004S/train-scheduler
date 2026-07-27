@@ -4,7 +4,20 @@ import (
 	"pathfinder/internal/models"
 )
 
+const maxRoutes = 200
+
+const maxPathLength = 50
+
 func DFS(current, end *models.Station, visited map[string]bool, path *models.Route, allPaths *[]*models.Route) {
+
+	if len(*allPaths) >= maxRoutes {
+		return
+	}
+
+	if len(path.Stations) >= maxPathLength {
+		return
+	}
+
 	path.Stations = append(path.Stations, current)
 
 	if current == end {
