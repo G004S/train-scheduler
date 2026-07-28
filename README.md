@@ -137,9 +137,26 @@ The map file is read and validated.
 
 ---
 
-## 2. Find every possible route
+## 2. Route Search
 
-Depth First Search (DFS) is used to find every simple path from the start station to the destination.
+The program uses a combination of **Breadth-First Search (BFS)** and **Depth-First Search (DFS)** to find candidate routes between the start and end stations.
+
+### BFS
+
+BFS is first used to verify that a path exists and to determine the length of the shortest possible route. This value is later used to limit the DFS search space.
+
+### DFS
+
+DFS enumerates all valid routes that satisfy the following constraints:
+
+- The route must not contain repeated stations.
+- The route length may not exceed **(shortest path length + 5 stations)**.
+- At most **100 routes** are collected.
+- The search is limited to **15 seconds**. If this limit is exceeded, the program terminates with an error.
+
+These limits were introduced to prevent excessive execution times on large or highly connected maps. Without them, the number of possible routes can grow exponentially, causing the search to become impractically slow or consume excessive memory.
+
+Because of these optimizations, the program does **not** guarantee that every possible route is explored. Instead, it searches within practical limits and uses the collected routes to determine an efficient train schedule.
 
 ---
 
