@@ -13,7 +13,7 @@ The program reads a railway map from a `.map` file, validates the input, finds p
 - Ignores comments beginning with `#`
 - Finds candidate simple routes using DFS
 - Groups routes that do not share intermediate stations
-- Chooses the fastest route combination through simulation
+- Selects the route combination requiring the fewest simulated turns
 - Simulates multiple trains moving simultaneously
 - Prevents collisions between trains
 - Prints train movements turn by turn
