@@ -1,22 +1,28 @@
 package routing
 
 import (
+	"errors"
 	"pathfinder/internal/models"
+	"time"
 )
 
 const maxRoutes = 100
 
-//const maxPathLength = 50
+var ErrSearchTimeout = errors.New("route search exceeded 15 seconds")
 
-func DFS(current, end *models.Station, visited map[string]bool, path *models.Route, allPaths *[]*models.Route) {
+func DFS(current, end *models.Station, visited map[string]bool, path *models.Route, allPaths *[]*models.Route, maxPathLength int, deadline time.Time) error {
 
-	if len(*allPaths) >= maxRoutes {
-		return
+	if time.Now().After(deadline) {
+		return ErrSearchTimeout
 	}
 
-	//if len(path.Stations) >= maxPathLength {
-	//	return
-	//}
+	if len(*allPaths) >= maxRoutes {
+		return nil
+	}
+
+	if len(path.Stations)+1 > maxPathLength {
+		return nil
+	}
 
 	path.Stations = append(path.Stations, current)
 
@@ -29,7 +35,7 @@ func DFS(current, end *models.Station, visited map[string]bool, path *models.Rou
 		})
 
 		path.Stations = path.Stations[:len(path.Stations)-1]
-		return
+		return nil
 	}
 
 	visited[current.Name] = true
@@ -39,10 +45,17 @@ func DFS(current, end *models.Station, visited map[string]bool, path *models.Rou
 			continue
 		}
 
-		DFS(neighbour, end, visited, path, allPaths)
+		err := DFS(neighbour, end, visited, path, allPaths, maxPathLength, deadline)
+		if err != nil {
+			visited[current.Name] = false
+			path.Stations = path.Stations[:len(path.Stations)-1]
+			return err
+		}
 	}
 
 	visited[current.Name] = false
 
 	path.Stations = path.Stations[:len(path.Stations)-1]
+
+	return nil
 }
