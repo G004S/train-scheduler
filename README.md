@@ -11,7 +11,7 @@ The program reads a railway map from a `.map` file, validates the input, finds p
 - Reads railway maps from `.map` files
 - Validates map structure and input arguments
 - Ignores comments beginning with `#`
-- Finds **possible simple routes** using DFS
+- Finds candidate simple routes using DFS
 - Groups routes that do not share intermediate stations
 - Chooses the fastest route combination through simulation
 - Simulates multiple trains moving simultaneously
@@ -34,6 +34,20 @@ july_pathfinder/
 ├── pathfinder_test.go
 ├── go.mod
 └── README.md
+```
+
+## Algorithm
+```text
+The program searches for routes in several stages:
+
+1. **BFS** finds the shortest path between the start and destination stations.
+2. **DFS** explores possible simple routes while applying the following limits:
+   - route length ≤ shortest path + 5 stations;
+   - maximum of 100 collected routes;
+   - maximum search time of 15 seconds.
+3. Routes are grouped so that they do not share intermediate stations.
+4. The program simulates train movement for different route groups.
+5. The group requiring the fewest movement turns is selected.
 ```
 
 ## Usage
