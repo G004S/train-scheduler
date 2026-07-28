@@ -2,7 +2,7 @@
 
 A Go program that finds efficient routes for multiple trains through a railway network.
 
-The program reads a railway map from a `.map` file, validates the input, finds all possible routes between two stations, selects the best combination of non-overlapping routes, simulates train movement, and prints every train movement turn by turn.
+The program reads a railway map from a `.map` file, validates the input, finds possible routes between two stations, selects the best combination of non-overlapping routes, simulates train movement, and prints every train movement turn by turn.
 
 ---
 
@@ -11,7 +11,7 @@ The program reads a railway map from a `.map` file, validates the input, finds a
 - Reads railway maps from `.map` files
 - Validates map structure and input arguments
 - Ignores comments beginning with `#`
-- Finds **all possible simple routes** using DFS
+- Finds **possible simple routes** using DFS
 - Groups routes that do not share intermediate stations
 - Chooses the fastest route combination through simulation
 - Simulates multiple trains moving simultaneously
