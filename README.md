@@ -37,7 +37,7 @@ july_pathfinder/
 ```
 
 ## Algorithm
-```text
+
 The program searches for routes in several stages:
 
 1. **BFS** finds the shortest path between the start and destination stations.
@@ -48,7 +48,7 @@ The program searches for routes in several stages:
 3. Routes are grouped so that they do not share intermediate stations.
 4. The program simulates train movement for different route groups.
 5. The group requiring the fewest movement turns is selected.
-```
+---
 
 ## Usage
 
